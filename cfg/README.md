@@ -12,7 +12,7 @@ passwd=amazing
 database=sparrow
 ```
 
-- open config, and convert to inifile
+- open and convert config to `Inifile`
 
 ```go
 
@@ -39,6 +39,26 @@ c := cfg.Open(context.TODO(), "./app.ini")
 inifile := c.ToInifile()
 c.OnChanged(func(c *Config){
     inifile.TryParse(string(c.Bytes))
+})
+
+```
+
+- works with other config formats. eg toml,yaml...
+  
+```go
+
+import "github.com/BurntSushi/toml"
+
+c := cfg.Open(context.TODO(), "./app.ini")
+
+var conf Config
+if _, err := toml.Decode(string(c.Bytes), &conf); err != nil {
+  // handle error
+}
+
+c.OnChanged(func(c *Config){
+    if _, err := toml.Decode(string(c.Bytes), &conf); err != nil {
+  // handle error
 })
 
 ```

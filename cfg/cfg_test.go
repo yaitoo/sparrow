@@ -29,7 +29,7 @@ func TestOpenWithReader(t *testing.T) {
 		modTime: now,
 	}
 
-	c := Open(context.TODO(), "TestWithReader", WithReader(func(ctx context.Context, c *Config) Reader {
+	c := Open(context.TODO(), "TestWithReader", WithReader(func(ctx context.Context) Reader {
 		return r
 	}))
 

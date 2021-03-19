@@ -1,8 +1,8 @@
 # Quikstart 
 
-## Load a local config file as inifile
+## Load a local config file as `Inifile`
 
-- create config file `./app.ini`
+- Create config file `./app.ini`
 
 ```
 [db]
@@ -12,7 +12,7 @@ passwd=amazing
 database=sparrow
 ```
 
-- open and convert config to `Inifile`
+- Open and convert config to `Inifile`
 
 ```go
 
@@ -27,11 +27,9 @@ c := cfg.Open(context.TODO(), "./app.ini").ToInifile()
 host := c.Section("db").Value("host","")
 user := c.Section("db").Value("user","")
 
-fmt.Println(host, user)
-
 ```
 
-- enable HotReload feature
+- Enable HotReload feature
 
 ```go
 
@@ -43,7 +41,7 @@ c.OnChanged(func(c *Config){
 
 ```
 
-- works with other config formats. eg toml,yaml...
+- Works with other config formats. eg toml,yaml...
   
 ```go
 
@@ -59,6 +57,49 @@ if _, err := toml.Decode(string(c.Bytes), &conf); err != nil {
 c.OnChanged(func(c *Config){
     if _, err := toml.Decode(string(c.Bytes), &conf); err != nil {
   // handle error
+    }
 })
+
+```
+
+## Load remote config file as `Inifile`
+
+- Implement a remote `Reader`
+
+```go
+
+type RemoteReader struct {
+    Name string
+}
+
+func NewReader(name string) *RemoteReader {
+    return &RemoteReader{name:name}
+}
+
+//Read implement `Reader.Read`
+func (r *RemoteReader) Read(ctx context.Context) ([]byte, error) {
+
+   return ReadBytesFromRemote(r.name)
+}
+
+//ModTime implement `Reader.ModTime`
+func (r *RemoteReader) ModTime(ctx context.Context) (int64, error) {
+
+	return ReadLatestModTimeFromRemote(r.name)
+}
+
+```
+
+- Open config with `RemoteReader` from remote store(eg. redis,mysql)
+
+```go
+
+ c := cfg.Open("cmdb.apis", cfg.WithReader(func(ctx context.Context, c *Config) Reader {
+		return r
+  })).ToInifile()
+
+
+host := c.Section("db").Value("host","")
+user := c.Section("db").Value("user","")
 
 ```

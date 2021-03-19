@@ -1,0 +1,53 @@
+database:
+  dsn: db_user:{passwd}@tcp(10.200.100.1:3306)/lottery
+  passwd: xxsdfsdfsdfasd
+versions: 
+- version: 8
+  rules:
+    databases: 
+      - dsn: db_user:{passwd}@tcp(10.200.100.1:3306)/lottery
+        passwd: xxsdfsdfsdfasd
+    tables:  
+- version: 1
+  rules:
+    databases: 
+      - dsn: db_user:{passwd}@tcp(10.200.100.1:3306)/lottery
+        passwd: xxsdfsdfsdfasd
+      - dsn: db_user:{passwd}@tcp(10.200.100.2:3306)/lottery
+        passwd: xxsdfsdfsdfasd
+      - dsn: db_user:{passwd}@tcp(10.200.100.3:3306)/lottery
+        passwd: xxsdfsdfsdfasd
+    tables:
+      - name: tran
+        key: id
+        timeZone: ""
+        tags:
+        - id: 0
+          names: 
+          - deposit
+          amount: 5
+          date: month 
+        - id: 1
+          names: 
+          - withdtraw
+          amount: 5
+          date: month 
+      - name: order
+        key: id
+        timeZone: ""
+        tags:
+        - id: 1
+          names: 
+          - cp
+          amount: 5
+          date: month
+        - id: 2
+          names: 
+          - cp
+          - ag
+          - mg
+          amount: 5
+          date: month
+     
+
+

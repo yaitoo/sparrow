@@ -1,0 +1,152 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "object",
+  "title": "The Json Schema of database configruation",
+  "required": [
+    "database",
+    "versions"
+  ],
+  "properties": {
+    "database": {
+      "$id": "#/properties/database",
+      "type": "object",
+      "title": "默認數據庫設定",
+      "required": [
+        "dsn"
+      ],
+      "properties": {
+        "dsn": {
+          "$id": "#/properties/database/properties/dsn",
+          "type": "string",
+          "title": "默認數據庫連結字符，支持{passwd}變數加密替換，也可以直接明文書寫，不可為空。",
+          "default": "",
+          "examples": [
+            "db_user:{passwd}@tcp(10.200.100.1:3306)/db"
+          ],
+          "pattern": "^(.*)$"
+        },
+        "passwd": {
+          "$id": "#/properties/database/properties/passwd",
+          "type": "string",
+          "title": "加密後的數據庫密碼，可空",
+          "default": "",
+          "examples": [
+            "abc123"
+          ],
+          "pattern": "^(.*)$"
+        },
+        "max_conns": {
+          "$id": "#/properties/database/properties/max_conns",
+          "type": "integer",
+          "title": "數據庫最大打開連接，默認100",
+          "default": 100,
+          "examples": [
+            10
+          ]
+        },
+        "min_conns": {
+          "$id": "#/properties/database/properties/min_conns",
+          "type": "integer",
+          "title": "數據庫最大空閒連接，默認",
+          "default": 0,
+          "examples": [
+            10
+          ]
+        },
+        "max_lifetime": {
+          "$id": "#/properties/database/properties/max_lifetime",
+          "type": "string",
+          "title": "The Max_lifetime Schema",
+          "default": "",
+          "examples": [
+            "100s"
+          ],
+          "pattern": "^(.*)$"
+        }
+      }
+    },
+    "versions": {
+      "$id": "#/properties/versions",
+      "type": "array",
+      "title": "The Versions Schema",
+      "items": {
+        "$id": "#/properties/versions/items",
+        "type": "object",
+        "title": "The Items Schema",
+        "required": [
+          "version",
+          "rules"
+        ],
+        "properties": {
+          "version": {
+            "$id": "#/properties/versions/items/properties/version",
+            "type": "integer",
+            "title": "The Version Schema",
+            "default": 0,
+            "examples": [
+              0
+            ]
+          },
+          "rules": {
+            "$id": "#/properties/versions/items/properties/rules",
+            "type": "object",
+            "title": "The Rules Schema",
+            "required": [
+              "databases",
+              "tables"
+            ],
+            "properties": {
+              "databases": {
+                "$id": "#/properties/versions/items/properties/rules/properties/databases",
+                "type": "array",
+                "title": "The Databases Schema",
+                "items": {
+                  "$id": "#/properties/versions/items/properties/rules/properties/databases/items",
+                  "type": "object",
+                  "title": "The Items Schema",
+                  "required": [
+                    "dsn",
+                    "passwd"
+                  ],
+                  "properties": {
+                    "dsn": {
+                      "$id": "#/properties/versions/items/properties/rules/properties/databases/items/properties/dsn",
+                      "type": "string",
+                      "title": "The Dsn Schema",
+                      "default": "",
+                      "examples": [
+                        "db_user:{passwd}@tcp(10.200.100.1:3306)/lottery"
+                      ],
+                      "pattern": "^(.*)$"
+                    },
+                    "passwd": {
+                      "$id": "#/properties/versions/items/properties/rules/properties/databases/items/properties/passwd",
+                      "type": "string",
+                      "title": "The Passwd Schema",
+                      "default": "",
+                      "examples": [
+                        "xxsdfsdfsdfasd"
+                      ],
+                      "pattern": "^(.*)$"
+                    }
+                  }
+                }
+              },
+              "tables": {
+                "$id": "#/properties/versions/items/properties/rules/properties/tables",
+                "type": "null",
+                "title": "The Tables Schema",
+                "default": null,
+                "examples": [
+                  null
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

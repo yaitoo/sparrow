@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package pkg;
+
+message SyncRounting {
+    // RountingNames
+    string RountingNames = 1;
+    // Parameters
+    string Parameters = 2;
+    // QueryStrings
+    string QueryStrings = 3;
+}

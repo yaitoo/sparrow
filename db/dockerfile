@@ -1,0 +1,14 @@
+FROM mysql:8.0.16
+
+ENV MYSQL_DATABASE TransDB
+ENV MYSQL_ROOT_PASSWORD m_root_pwd
+ENV RUN_DIR ./docker-entrypoint-initdb.d
+ENV MYSQL_ROOT_HOST '%'
+
+COPY ./ithome2019_familydb.sql $RUN_DIR/
+COPY ./TransDB.sql $RUN_DIR/
+
+RUN chmod a+x $RUN_DIR/ithome2019_familydb.sql
+RUN chmod a+x $RUN_DIR/TransDB.sql
+
+EXPOSE 3306

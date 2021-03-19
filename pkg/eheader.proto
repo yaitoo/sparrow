@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package pkg;
+
+message EHeader {
+    // User defined
+    uint32 Status = 1;
+    // String format: User defined (ASCII String).
+    string PacketID = 2;
+    // String format: UUID (ASCII String).
+    string TrackID = 3;
+    // Payload Protobuf Length.
+    uint32 PayloadLength = 4;
+    // Route compression.
+    string Routing = 5;
+    // Client Version.
+    string Version = 6;
+    // Parameters
+    string Parameters = 7;
+    // QueryStrings
+    string QueryStrings = 8;
+}

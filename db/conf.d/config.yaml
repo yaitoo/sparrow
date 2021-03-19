@@ -1,0 +1,16 @@
+versionControl:
+- ver: 1
+  rules:
+  - entities:
+    - name: tran
+      key: id
+      timeZone: ""
+      table:
+      - name: AG
+        id: 1
+        hash: 5
+      - name: MG
+        id: 1
+        hash: 5
+    nodes:
+    - db00

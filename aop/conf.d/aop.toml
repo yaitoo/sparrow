@@ -1,0 +1,9 @@
+#包名替換規則
+[Pkg]
+"gitlab.geax.io"=""
+
+#參數名稱設定，用於驗證規則設定等變數擴展應用
+#由於目前go不支持反射獲取變數名稱，故先採用設定檔代替自動反射，可考慮使用go generate自動生成註冊變數名稱代碼
+#-表示忽略， +表示使用Valuer展开(map/struct展开，其他类型使用Stringer)，默认使用展开模式
+[NamesIn]
+"jinkong/fina/app.AddBot"=["+"]

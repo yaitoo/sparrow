@@ -1,0 +1,7 @@
+#*=匿名 ?=必须登录验证
+[Authentication]
+#默认规则
+"*"=["?"]
+#登录设置匿名可访问
+"/jinkong/fina/app.TryLogin"=["*"]
+#"/jinkong/fina/app.FindLogins"=["admin","sys"]

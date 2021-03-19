@@ -1,45 +1,45 @@
 # Sparrow
 
-Sparrow is a toolkit for creating powerful modern Go applications.
+Sparrow is a RAD library for creating powerful modern Go applications.
 
 
 # Table of Contents
 
 - Packages
-  * [CFG](#cfg)
-  * [LOG](#log)
-  * [DB](#db)
-  * [I18N](#i18n)
-  * [IdGen](#idgen)
-  * [AOP](#aop)
-  * [Validate](#validate)
+  * [cfg](#cfg)
+  * [log](#log)
+  * [db](#db)
+  * [i18n](#i18n)
+  * [idgen](#idgen)
+  * [aop](#aop)
+  * [validate](#validate)
 
 
 - [Contributing](CONTRIBUTING.md)
 - [License](#license)
 
 
-# CFG
-cfg implements a simple configraution loader with hot reload feature once the file is changed. Local file and remote store are supported. 
+# cfg
+cfg implements a simple configraution loader with hot reload feature once the file is changed. Local file and remote store are supported. [see more](cfg/README.md)
 
-# LOG
-log implements an enhanced logging wrapper for standard `log`. It introcued
+# log
+[WIP]log implements an enhanced logging wrapper for standard `log`. 
 
-# DB
+# db
 //TODO
 
-# I18N
+# i18n
 //TODO
 
-# IdGen
+# idgen
 //TODO
 
-# AOP
+# aop
 //TODO
 
-# Validate
+# validate
 //TODO
 
 # License
 
-Sparrow is released under the MIT license. See [LICENSE](https://github.com/yaitoo/sparrow/blob/master/LICENSE)
+Sparrow is released under the MIT license. See [LICENSE](LICENSE)

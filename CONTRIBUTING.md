@@ -1,4 +1,4 @@
-# Contributing to SkyAPM-dotnet
+# Contributing to Sparrow
 
 One of the easiest ways to contribute is to participate in discussions and discuss issues. You can also contribute by submitting pull requests with code changes.
 

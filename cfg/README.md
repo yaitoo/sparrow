@@ -1,6 +1,6 @@
 # Quikstart 
 
-## Load a local config file as `Inifile`
+## Read local config file as `Inifile`
 
 - Create config file `./app.ini`
 
@@ -35,7 +35,7 @@ user := c.Section("db").Value("user","")
 
 c := cfg.Open(context.TODO(), "./app.ini")
 inifile := c.ToInifile()
-c.OnChanged(func(c *Config){
+c.OnChanged(func(c *cfg.Config){
     inifile.TryParse(string(c.Bytes))
 })
 
@@ -54,7 +54,7 @@ if _, err := toml.Decode(string(c.Bytes), &conf); err != nil {
   // handle error
 }
 
-c.OnChanged(func(c *Config){
+c.OnChanged(func(c *cfg.Config){
     if _, err := toml.Decode(string(c.Bytes), &conf); err != nil {
   // handle error
     }
@@ -62,9 +62,9 @@ c.OnChanged(func(c *Config){
 
 ```
 
-## Load remote config file as `Inifile`
+## Read remote config content as `Inifile`
 
-- Implement a remote `Reader`
+- Implement a custom `Reader` to read remote content via http/tcp...
 
 ```go
 
@@ -94,8 +94,8 @@ func (r *RemoteReader) ModTime(ctx context.Context) (int64, error) {
 
 ```go
 
- c := cfg.Open("cmdb.apis", cfg.WithReader(func(ctx context.Context, c *Config) Reader {
-		return r
+ c := cfg.Open("cmdb.apis", cfg.WithReader(func(ctx context.Context) cfg.Reader {
+		return NewReader("cmdb.apis")
   })).ToInifile()
 
 

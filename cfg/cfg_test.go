@@ -51,7 +51,7 @@ func TestOnChanged(t *testing.T) {
 		modTime: now,
 	}
 
-	c := Open(context.TODO(), "TestOnChanged", WithReader(func(ctx context.Context, c *Config) Reader {
+	c := Open(context.TODO(), "TestOnChanged", WithReader(func(ctx context.Context) Reader {
 		return r
 	}))
 

@@ -108,8 +108,8 @@ func Open(ctx context.Context, name string, options ...Option) *Config {
 }
 
 //WithReader using a custom Reader
-func WithReader(create func(ctx context.Context, c *Config) Reader) Option {
+func WithReader(create func(ctx context.Context) Reader) Option {
 	return func(ctx context.Context, c *Config) {
-		c.reader = create(ctx, c)
+		c.reader = create(ctx)
 	}
 }

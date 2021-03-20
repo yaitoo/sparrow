@@ -18,8 +18,8 @@ jobs:
       with:
         go-version: 1.15
 
-    - name: [cfg]Build
+    - name: cfg:Build
       run: cd $GITHUB_WORKSPACE/cfg && go build -v ./...
 
-    - name: [cfg]Test
+    - name: cfg:Test
       run: cd $GITHUB_WORKSPACE/cfg && go test -v ./...

@@ -67,8 +67,8 @@ func (c *Config) fireHandlers() {
 }
 
 //ToInifile convert config to Inifile
-func (c *Config) ToInifile() Inifile {
-	i := Inifile{}
+func (c *Config) ToInifile() *Inifile {
+	i := &Inifile{}
 	i.TryParse(string(c.Bytes))
 
 	return i

@@ -25,7 +25,7 @@ func TestOpenWithReader(t *testing.T) {
 	now := time.Now().UnixNano()
 
 	r := &reader{
-		bytes:   []byte(content),
+		content: content,
 		modTime: now,
 	}
 
@@ -33,8 +33,8 @@ func TestOpenWithReader(t *testing.T) {
 		return r
 	}))
 
-	if string(c.Bytes) != content {
-		t.Errorf("Bytes got: %s , want: %s", string(c.Bytes), content)
+	if c.Content != content {
+		t.Errorf("Bytes got: %s , want: %s", c.Content, content)
 	}
 
 	if c.modTime != now {
@@ -47,7 +47,7 @@ func TestOnChanged(t *testing.T) {
 	now := time.Now().UnixNano()
 
 	r := &reader{
-		bytes:   []byte(content),
+		content: content,
 		modTime: now,
 	}
 
@@ -61,8 +61,8 @@ func TestOnChanged(t *testing.T) {
 	firedHanlder := false
 
 	go c.OnChanged(func(c *Config) {
-		if wantedContent != string(c.Bytes) {
-			t.Errorf("Bytes got: %s , want: %s", string(c.Bytes), wantedContent)
+		if wantedContent != c.Content {
+			t.Errorf("Bytes got: %s , want: %s", c.Content, wantedContent)
 		}
 
 		if c.modTime != wantedModTime {
@@ -72,7 +72,7 @@ func TestOnChanged(t *testing.T) {
 		firedHanlder = true
 	})
 
-	r.bytes = []byte(wantedContent)
+	r.content = wantedContent
 	r.modTime = wantedModTime
 
 	time.Sleep(2 * time.Second)
@@ -84,12 +84,12 @@ func TestOnChanged(t *testing.T) {
 }
 
 type reader struct {
-	bytes   []byte
+	content string
 	modTime int64
 }
 
-func (r *reader) Read(ctx context.Context) ([]byte, error) {
-	return r.bytes, nil
+func (r *reader) Read(ctx context.Context) (string, error) {
+	return r.content, nil
 }
 
 func (r *reader) ModTime(ctx context.Context) (int64, error) {

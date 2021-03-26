@@ -22,7 +22,7 @@ import (
     "github.com/yaitoo/sparrow/cfg"
 )
 
-c := cfg.Open(context.TODO(), "./app.ini").ToInifile()
+c := cfg.Open(context.TODO(), "./app.ini").ToInifile(context.TODO())
 
 host := c.Section("db").Value("host","")
 user := c.Section("db").Value("user","")
@@ -34,9 +34,9 @@ user := c.Section("db").Value("user","")
 ```go
 
 c := cfg.Open(context.TODO(), "./app.ini")
-inifile := c.ToInifile()
+inifile := c.ToInifile(context.TODO())
 c.OnChanged(func(c *cfg.Config){
-    inifile.TryParse(string(c.Bytes))
+    inifile.TryParse(c.Content)
 })
 
 ```
@@ -50,12 +50,13 @@ import "github.com/BurntSushi/toml"
 c := cfg.Open(context.TODO(), "./app.ini")
 
 var conf Config
-if _, err := toml.Decode(string(c.Bytes), &conf); err != nil {
+if _, err := toml.Decode(c.Content), &conf); err != nil {
   // handle error
 }
 
+//Enable hot-reload feature
 c.OnChanged(func(c *cfg.Config){
-    if _, err := toml.Decode(string(c.Bytes), &conf); err != nil {
+    if _, err := toml.Decode(c.Content, &conf); err != nil {
   // handle error
     }
 })
@@ -77,7 +78,7 @@ func NewReader(name string) *RemoteReader {
 }
 
 //Read implement `Reader.Read`
-func (r *RemoteReader) Read(ctx context.Context) ([]byte, error) {
+func (r *RemoteReader) Read(ctx context.Context) (string, error) {
 
    return ReadBytesFromRemote(r.name)
 }
@@ -94,9 +95,9 @@ func (r *RemoteReader) ModTime(ctx context.Context) (int64, error) {
 
 ```go
 
- c := cfg.Open("cmdb.apis", cfg.WithReader(func(ctx context.Context) cfg.Reader {
+ c := cfg.Open(context.TODO(),"cmdb.apis", cfg.WithReader(func(ctx context.Context) cfg.Reader {
 		return NewReader("cmdb.apis")
-  })).ToInifile()
+  })).ToInifile(context.TODO())
 
 
 host := c.Section("db").Value("host","")

@@ -5,13 +5,14 @@
 package cfg
 
 import (
+	"context"
 	"testing"
 )
 
 func TestSections(t *testing.T) {
 
 	i := Inifile{}
-	i.TryParse(`
+	i.TryParse(context.TODO(), `
 	#dev mysql server
 	[mysql]
 	host=127.0.0.1:3306
@@ -38,7 +39,7 @@ func TestSections(t *testing.T) {
 func TestNormalize(t *testing.T) {
 
 	i := Inifile{}
-	i.TryParse(`
+	i.TryParse(context.TODO(), `
 	#dev mysql server
 [ MySQL ]
 Host =127.0.0.1:3306
@@ -65,7 +66,7 @@ Host =127.0.0.1:3306
 func TestValues(t *testing.T) {
 
 	i := Inifile{}
-	i.TryParse(`
+	i.TryParse(context.TODO(), `
 [values]
 string=s
 int=3
@@ -134,7 +135,7 @@ bool_false=false`)
 func TestNormailizeValues(t *testing.T) {
 
 	i := Inifile{}
-	i.TryParse(`
+	i.TryParse(context.TODO(), `
 [bool]
 bool_1= 1
 bool_on= On

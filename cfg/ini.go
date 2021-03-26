@@ -6,24 +6,25 @@ package cfg
 
 import (
 	"bufio"
+	"context"
 	"log"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 //Inifile represents all data from an INI file. see https://en.wikipedia.org/wiki/INI_file
+// NOTE:
+//   + Global properties will be ignored.
+//   + Section and property names are not case sensitive. Both of them are converted to lower-case. And space is trimed in leading and trailing.
+//   + The value of bool key is not case sensitive. "True" is same as "true". Space is trimed too.
 type Inifile struct {
-	sync.RWMutex
 	sections map[string]*Section
 }
 
-//TryParse Parse ini data with ini string data
-func (i *Inifile) TryParse(data string) {
-	i.Lock()
-	defer i.Unlock()
+//TryParse try parse string. if it is ok, Infile will be updated.
+func (i *Inifile) TryParse(ctx context.Context, data string) {
 
-	i.sections = make(map[string]*Section)
+	sections := make(map[string]*Section)
 
 	var section *Section
 
@@ -45,10 +46,10 @@ func (i *Inifile) TryParse(data string) {
 				section = &Section{}
 				section.Name = sectionName
 				section.values = make(map[string]string)
-				i.sections[section.Name] = section
+				sections[section.Name] = section
 
 			} else if section.Name != sectionName { //go to next section
-				i.sections[section.Name] = section
+				sections[sectionName] = section
 
 				section = &Section{}
 				section.Name = sectionName
@@ -78,12 +79,15 @@ func (i *Inifile) TryParse(data string) {
 		log.Printf("[inifile]invalid ini data: %s\n", data)
 	}
 
+	i.sections = sections
+
 }
 
 //Section get section with name.
 func (i *Inifile) Section(name string) *Section {
-	i.RLock()
-	defer i.RUnlock()
+	if i == nil {
+		return nil
+	}
 
 	if i.sections == nil {
 		return nil
@@ -105,7 +109,21 @@ type Section struct {
 	values map[string]string
 }
 
-//Value get string with key. return defaultValue it doesn't exists
+//Keys return key list
+func (s *Section) Keys() []string {
+	n := len(s.values)
+	keys := make([]string, n)
+
+	i := 0
+	for k := range s.values {
+		keys[i] = k
+		i++
+	}
+
+	return keys
+}
+
+//Value get string with key. return defaultValue if it doesn't exists
 func (s *Section) Value(key string, defaultValue string) string {
 	if s == nil || s.values == nil {
 		return defaultValue
@@ -119,7 +137,7 @@ func (s *Section) Value(key string, defaultValue string) string {
 	return defaultValue
 }
 
-//ValueInt get int with key. return defaultValue it doesn't exists or is invalid int
+//ValueInt get int with key. return defaultValue if it doesn't exists or is invalid int
 func (s *Section) ValueInt(key string, defaultValue int) int {
 	v := strings.TrimSpace(s.Value(key, ""))
 
@@ -136,7 +154,7 @@ func (s *Section) ValueInt(key string, defaultValue int) int {
 	return int(i)
 }
 
-//ValueInt32 get int32 with key. return defaultValue it doesn't exists or is invalid int64
+//ValueInt32 get int32 with key. return defaultValue if it doesn't exists or is invalid int64
 func (s *Section) ValueInt32(key string, defaultValue int32) int32 {
 	v := strings.TrimSpace(s.Value(key, ""))
 
@@ -153,7 +171,7 @@ func (s *Section) ValueInt32(key string, defaultValue int32) int32 {
 	return int32(i)
 }
 
-//ValueInt64 get int64 with key. return defaultValue it doesn't exists or is invalid int64
+//ValueInt64 get int64 with key. return defaultValue if it doesn't exists or is invalid int64
 func (s *Section) ValueInt64(key string, defaultValue int64) int64 {
 	v := strings.TrimSpace(s.Value(key, ""))
 
@@ -170,7 +188,7 @@ func (s *Section) ValueInt64(key string, defaultValue int64) int64 {
 	return int64(i)
 }
 
-//ValueFloat32 get float32 with key. return defaultValue it doesn't exists or is invalid float32
+//ValueFloat32 get float32 with key. return defaultValue if it doesn't exists or is invalid float32
 func (s *Section) ValueFloat32(key string, defaultValue float32) float32 {
 	v := strings.TrimSpace(s.Value(key, ""))
 
@@ -187,7 +205,7 @@ func (s *Section) ValueFloat32(key string, defaultValue float32) float32 {
 	return float32(i)
 }
 
-//ValueFloat64 get float64 with key. return defaultValue it doesn't exists or is invalid float32
+//ValueFloat64 get float64 with key. return defaultValue if it doesn't exists or is invalid float32
 func (s *Section) ValueFloat64(key string, defaultValue float64) float64 {
 	v := strings.TrimSpace(s.Value(key, ""))
 
@@ -204,7 +222,7 @@ func (s *Section) ValueFloat64(key string, defaultValue float64) float64 {
 	return float64(i)
 }
 
-//ValueBool get bool with key. return defaultValue it doesn't exists or is invalid value. valid values: 0/1, on/off, true/false.
+//ValueBool get bool with key. return defaultValue if it doesn't exists or is invalid value. valid values: 0/1, on/off, true/false.
 func (s *Section) ValueBool(key string, defaultValue bool) bool {
 	v := strings.ToLower(strings.TrimSpace(s.Value(key, "")))
 

@@ -38,13 +38,13 @@ func watch() {
 			}
 
 			if modTime != c.modTime {
-				bytes, err := c.reader.Read(context.Background())
+				content, err := c.reader.Read(context.Background())
 				if err != nil {
 					log.Printf("[cfg]%s Read %v\n", c.Name, err)
 					continue
 				}
 
-				c.Bytes = bytes
+				c.Content = content
 				c.modTime = modTime
 
 				c.fireHandlers()

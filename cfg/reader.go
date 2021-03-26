@@ -14,7 +14,7 @@ import (
 //Reader Reader is the interface that wrap the Read and ModTime method of config
 type Reader interface {
 	//Read reads contents
-	Read(ctx context.Context) ([]byte, error)
+	Read(ctx context.Context) (string, error)
 	//ModTime get latest modification time
 	ModTime(ctx context.Context) (int64, error)
 }
@@ -41,8 +41,14 @@ func CreateFsReader(ctx context.Context, name string) Reader {
 }
 
 //Read implement `Reader.Read`
-func (r *FsReader) Read(ctx context.Context) ([]byte, error) {
-	return ioutil.ReadFile(r.fileName)
+func (r *FsReader) Read(ctx context.Context) (string, error) {
+	buf, err := ioutil.ReadFile(r.fileName)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(buf), nil
 }
 
 //ModTime implement `Reader.ModTime`

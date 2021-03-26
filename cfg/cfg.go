@@ -16,7 +16,7 @@ var (
 	mutex   sync.RWMutex
 )
 
-//Handler A hanlder responds to a config changed.
+//Handler A hanlder responds to config changed.
 type Handler func(c *Config)
 
 //Option set optional parameter
@@ -27,8 +27,8 @@ type Config struct {
 	sync.RWMutex
 	//Name name
 	Name string
-	//Bytes content
-	Bytes []byte
+	//Content content
+	Content string
 
 	//modTime modification time
 	modTime int64
@@ -67,9 +67,9 @@ func (c *Config) fireHandlers() {
 }
 
 //ToInifile convert config to Inifile
-func (c *Config) ToInifile() *Inifile {
-	i := &Inifile{}
-	i.TryParse(string(c.Bytes))
+func (c *Config) ToInifile(ctx context.Context) Inifile {
+	i := Inifile{}
+	i.TryParse(ctx, c.Content)
 
 	return i
 }
@@ -99,7 +99,7 @@ func Open(ctx context.Context, name string, options ...Option) *Config {
 		c.reader = CreateFsReader(ctx, name)
 	}
 
-	c.Bytes, _ = c.reader.Read(ctx)
+	c.Content, _ = c.reader.Read(ctx)
 	c.modTime, _ = c.reader.ModTime(ctx)
 
 	once.Do(startWatch)

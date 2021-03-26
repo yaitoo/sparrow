@@ -49,11 +49,10 @@ func (i *Inifile) TryParse(ctx context.Context, data string) {
 				sections[section.Name] = section
 
 			} else if section.Name != sectionName { //go to next section
-				sections[sectionName] = section
-
 				section = &Section{}
 				section.Name = sectionName
 				section.values = make(map[string]string)
+				sections[sectionName] = section
 			}
 
 			continue

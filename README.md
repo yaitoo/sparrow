@@ -23,7 +23,7 @@ Sparrow is a RAD library for creating powerful modern Go applications.
 # cfg
 cfg implements a simple configuration loader with hot-reload feature once the file is changed. Local file and remote store are both supported. See [Quickstart](cfg/README.md) for more detail.
 
-#fmt
+# fmt
 **[WIP]** fmt implements a simple fmt wrapper with higher performance than standard `fmt`.
 
 # log

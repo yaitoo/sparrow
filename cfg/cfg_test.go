@@ -7,6 +7,7 @@ package cfg
 import (
 	"context"
 	"os"
+	"sync"
 	"testing"
 	"time"
 )
@@ -58,9 +59,9 @@ func TestOnChanged(t *testing.T) {
 	wantedContent := "Updated:TestOnChanged"
 	wantedModTime := time.Now().UnixNano()
 
-	firedHanlder := false
+	firedHanlder := make(chan bool)
 
-	go c.OnChanged(func(c *Config) {
+	c.OnChanged(func(c *Config) {
 		if wantedContent != c.Content {
 			t.Errorf("Bytes got: %s , want: %s", c.Content, wantedContent)
 		}
@@ -69,29 +70,39 @@ func TestOnChanged(t *testing.T) {
 			t.Errorf("ModTime got: %v , want: %v", c.modTime, wantedModTime)
 		}
 
-		firedHanlder = true
+		firedHanlder <- true
 	})
 
+	r.Lock()
 	r.content = wantedContent
 	r.modTime = wantedModTime
+	r.Unlock()
 
-	time.Sleep(2 * time.Second)
-
-	if !firedHanlder {
-		t.Error("handler is not fired")
+	select {
+	case <-time.After(2 * time.Second):
+		t.Error("handler is timeout to fired")
+	case fired := <-firedHanlder:
+		if !fired {
+			t.Error("handler is not fired")
+		}
 	}
 
 }
 
 type reader struct {
+	sync.RWMutex
 	content string
 	modTime int64
 }
 
 func (r *reader) Read(ctx context.Context) (string, error) {
+	r.RLock()
+	defer r.RUnlock()
 	return r.content, nil
 }
 
 func (r *reader) ModTime(ctx context.Context) (int64, error) {
+	r.RLock()
+	defer r.RUnlock()
 	return r.modTime, nil
 }

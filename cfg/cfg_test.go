@@ -79,7 +79,7 @@ func TestOnChanged(t *testing.T) {
 	r.Unlock()
 
 	select {
-	case <-time.After(2 * time.Second):
+	case <-time.After(4 * time.Second):
 		t.Error("handler is timeout to fired")
 	case fired := <-firedHanlder:
 		if !fired {

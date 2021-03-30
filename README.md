@@ -1,5 +1,10 @@
 # Sparrow
 
+[![Build]((https://github.com/yaitoo/sparrow/actions/workflows/build.yml/badge.svg)](https://github.com/yaitoo/sparrow/actions/workflows/build.yml)
+[![Test]((https://github.com/yaitoo/sparrow/actions/workflows/test.yml/badge.svg)](https://github.com/yaitoo/sparrow/actions/workflows/test.yml)
+[![GoDoc](https://godoc.org/github.com/yaitoo/sparrow?status.png)](https://godoc.org/github.com/yaitoo/sparrow)
+[![codecov](https://codecov.io/gh/yaitoo/sparrow/branch/main/graph/badge.svg)](https://codecov.io/gh/yaitoo/sparrow)
+
 Sparrow is a RAD library for creating powerful modern Go applications.
 
 

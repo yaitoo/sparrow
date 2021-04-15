@@ -12,63 +12,24 @@ import (
 	"io"
 )
 
-//Errorf formats according to a format specifier and returns the string as a value that satisfies error.
-//
-//If the format specifier includes a %w verb with an error operand, the returned error will implement an Unwrap method returning the operand. It is invalid to include more than one %w verb or to supply it with an operand that does not implement the error interface. The %w verb is otherwise a synonym for %v.
-func Errorf(format string, a ...interface{}) error {
-	return fmt.Errorf(format, a...)
-}
-func Fprint(w io.Writer, a ...interface{}) (n int, err error) {
-	return fmt.Fprint(w, a...)
-}
+//Fprintf a high-performance Fprintf instead of fmt.Fprintf
 func Fprintf(w io.Writer, format string, a ...interface{}) (n int, err error) {
-
+	fo := parseFormatObject(format, a...)
+	return fmt.Fprint(w, fo.Printf(a...))
 }
-func Fprintln(w io.Writer, a ...interface{}) (n int, err error) {
 
-}
-func Fscan(r io.Reader, a ...interface{}) (n int, err error) {
-
-}
-func Fscanf(r io.Reader, format string, a ...interface{}) (n int, err error) {
-
-}
-func Fscanln(r io.Reader, a ...interface{}) (n int, err error) {
-
-}
-func Print(a ...interface{}) (n int, err error) {
-
-}
-func Printf(format string, a ...interface{}) (n int, err error) {
-
-}
-func Println(a ...interface{}) (n int, err error) {
-
-}
-func Scan(a ...interface{}) (n int, err error) {
-
-}
-func Scanf(format string, a ...interface{}) (n int, err error) {
-
-}
-func Scanln(a ...interface{}) (n int, err error) {
-
-}
-func Sprint(a ...interface{}) string {
-
-}
+//Sprintf a high-performance Sprintf instead of fmt.Sprintf
 func Sprintf(format string, a ...interface{}) string {
 
-}
-func Sprintln(a ...interface{}) string {
+	fo := parseFormatObject(format, a...)
 
+	return fo.Printf(a...)
 }
-func Sscan(str string, a ...interface{}) (n int, err error) {
 
-}
-func Sscanf(str string, format string, a ...interface{}) (n int, err error) {
+//Printf a high-performance Printf instead of fmt.Printf
+func Printf(format string, a ...interface{}) (n int, err error) {
 
-}
-func Sscanln(str string, a ...interface{}) (n int, err error) {
+	fo := parseFormatObject(format, a...)
 
+	return fmt.Print(fo.Printf(a...))
 }

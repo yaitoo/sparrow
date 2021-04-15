@@ -4,52 +4,79 @@
 
 package fmt
 
+import (
+	"bytes"
+	"reflect"
+	"strconv"
+	"sync"
+)
+
+var (
+	formatMutex   sync.RWMutex
+	formatObjects = make(map[string]formatObject)
+)
+
 //FormatVerb format verb for printing argument
 type FormatVerb int
 
 const (
-	//FormatVerb_v %v
-	FormatVerb_v FormatVerb = iota
-	//FormatVerb_T %T
-	FormatVerb_T
-	//FormatVerb_t %t
-	FormatVerb_t
-	//FormatVerb_b %b
-	FormatVerb_b
-	//FormatVerb_c %c
-	FormatVerb_c
-	//FormatVerb_d %d
-	FormatVerb_d
-	//FormatVerb_o %o
-	FormatVerb_o
-	//FormatVerb_O %O
-	FormatVerb_O
-	//FormatVerb_q %q
-	FormatVerb_q
-	//FormatVerb_x %x
-	FormatVerb_x
-	//FormatVerb_X %X
-	FormatVerb_X
-	//FormatVerb_U %U
-	FormatVerb_U
-	//FormatVerb_e %e
-	FormatVerb_e
-	//FormatVerb_E %E
-	FormatVerb_E
-	//FormatVerb_f %f
-	FormatVerb_f
-	//FormatVerb_F %F
-	FormatVerb_F
-	//FormatVerb_g %g
-	FormatVerb_g
-	//FormatVerb_G %G
-	FormatVerb_G
-	//FormatVerb_p %p
-	FormatVerb_p
+
+	//FormatVerbLowerB %b
+	FormatVerbLowerB FormatVerb = iota
+
+	//FormatVerbLowerC %c
+	FormatVerbLowerC
+
+	//FormatVerbLowerD %d
+	FormatVerbLowerD
+
+	//FormatVerbLowerE %e
+	FormatVerbLowerE
+	//FormatVerbUpperE %E
+	FormatVerbUpperE
+
+	//FormatVerbLowerF %f
+	FormatVerbLowerF
+	//FormatVerbUpperF %F
+	FormatVerbUpperF
+
+	//FormatVerbLowerG %g
+	FormatVerbLowerG
+	//FormatVerbUpperG %G
+	FormatVerbUpperG
+
+	//FormatVerbLowerO %o
+	FormatVerbLowerO
+	//FormatVerbUpperO %O
+	FormatVerbUpperO
+
+	//FormatVerbLowerP %p
+	FormatVerbLowerP
+
+	//FormatVerbLowerQ %q
+	FormatVerbLowerQ
+
+	//FormatVerbLowerT %t
+	FormatVerbLowerT
+	//FormatVerbUpperT %T
+	FormatVerbUpperT
+
+	//FormatVerbUpperU %U
+	FormatVerbUpperU
+
+	//FormatVerbLowerV %v
+	FormatVerbLowerV
+
+	//FormatVerbLowerX %x
+	FormatVerbLowerX
+	//FormatVerbUpperX %X
+	FormatVerbUpperX
 )
 
+var verbs = []string{"%b", "%c", "%d", "%e", "%E", "%f", "%F", "%g", "%G", "%o", "%O", "%p", "%q", "%t", "%T", "%U", "%v", "%x", "%X"}
+
 func (f FormatVerb) String() string {
-	return [...]string{"%v", "%T", "%t", "%b", "%c", "%d", "%o", "%O", "%q", "%x", "%X", "%U", "%e", "%E", "%f", "%F", "%g", "%G", "%p"}[f]
+	return verbs[f]
 }
 
 //FormatFlags https://golang.org/pkg/fmt/#hdr-Printing
@@ -80,14 +107,194 @@ type FormatFlags struct {
 
 //formatObject parse format, and cache string part and format part in a formatObject
 type formatObject struct {
-	stringParts []string
+	items       []bool
+	stringParts [][]byte
 	formatParts []formatIndex
+}
+
+func (fo formatObject) Printf(args ...interface{}) string {
+
+	buf := bytes.Buffer{}
+
+	stringIndex := 0
+	formatIndex := 0
+	argsIndex := 0
+
+	argsLen := len(args)
+
+	n := len(fo.items)
+	for i := 0; i < n; i++ {
+		if fo.items[i] { //format part
+
+			fi := fo.formatParts[formatIndex]
+
+			if argsIndex < argsLen {
+				buf.WriteString(fi.print(fi.source, fi.verb, fi.flags, args[argsIndex]))
+			} else {
+				buf.WriteString(fi.print(fi.source, fi.verb, fi.flags, nil))
+			}
+
+			argsIndex++
+			formatIndex++
+
+		} else { //string part
+			buf.Write(fo.stringParts[stringIndex])
+			stringIndex++
+		}
+	}
+
+	return buf.String()
+
 }
 
 //formatIndex the metedata of format part, include index, source, flags and print function
 type formatIndex struct {
-	index  int
 	source string
+	verb   FormatVerb
 	flags  FormatFlags
-	print  PrintFunc
+	print  PrintfFunc
+}
+
+func parseFormatObject(source string, args ...interface{}) formatObject {
+	formatMutex.RLock()
+
+	key := strconv.Itoa(len(args)) + ":" + source
+
+	f, ok := formatObjects[key]
+	formatMutex.RUnlock()
+	if ok {
+		return f
+	}
+
+	f = formatObject{
+		items:       make([]bool, 0, 10),
+		stringParts: make([][]byte, 0, 10),
+		formatParts: make([]formatIndex, 0, 10),
+	}
+	end := len(source)
+	argNum := 0
+	argLen := len(args)
+
+	for i := 0; i < end; {
+
+		buf := bytes.Buffer{}
+		lasti := i
+
+		for i < end {
+
+			if source[i] != '%' {
+				i++
+			} else {
+				if source[i+1] == '%' {
+					i = i + 2
+				} else {
+					break
+				}
+			}
+		}
+
+		if i > lasti {
+			buf.WriteString(source[lasti:i])
+		}
+
+		if i >= end {
+			// done processing format string
+
+			f.items = append(f.items, false)
+			f.stringParts = append(f.stringParts, buf.Bytes())
+
+			break
+		}
+
+		fi := formatIndex{}
+		for i < end {
+			i++
+			c := source[i]
+			if 'A' <= c && c <= 'z' {
+				fi.source = source[lasti : i+1]
+
+				fi.verb, fi.flags = parseFormatVerb(source)
+
+				if argNum < argLen {
+					fi.print = getPrintfFunc(fi.verb, reflect.TypeOf(args[argNum]))
+				} else {
+					fi.print = defaultPrintfFunc
+				}
+				argNum++
+
+				f.items = append(f.items, true)
+				f.formatParts = append(f.formatParts, fi)
+
+				i++
+				lasti = i
+				break
+			}
+
+		}
+
+		//format % is missing verb at end of string
+		if i > lasti {
+			fi.source = source[lasti:i]
+
+			fi.print = defaultPrintfFunc
+
+			f.items = append(f.items, true)
+			f.formatParts = append(f.formatParts, fi)
+
+			argNum++
+		}
+
+	}
+
+	for ; argNum < argLen; argNum++ {
+		fi := formatIndex{}
+		fi.source = ""
+		fi.print = defaultPrintfFunc
+
+		f.items = append(f.items, true)
+		f.formatParts = append(f.formatParts, fi)
+	}
+
+	formatMutex.Lock()
+	formatObjects[key] = f
+	formatMutex.Unlock()
+	return f
+}
+
+func parseFormatVerb(source string) (FormatVerb, FormatFlags) {
+	// it := formatIndex{}
+	// c := source[i]
+	// switch c {
+	// case '#':
+	// 	it.flags.Sharp = true
+	// case '0':
+	// 	it.flags.Zero = !it.flags.Minus // Only allow zero padding to the left.
+	// case '+':
+	// 	it.flags.Plus = true
+	// case '-':
+	// 	it.flags.Minus = true
+	// 	it.flags.Zero = false // Do not pad with zeros to the right.
+	// case ' ':
+	// 	it.flags.Space = true
+	// default:
+	// 	// Fast path for common case of ascii lower case simple verbs
+	// 	// without precision or width or argument indices.
+	// 	if 'a' <= c && c <= 'z' && argNum < len(a) {
+	// 		if c == 'v' {
+	// 			// Go syntax
+	// 			p.fmt.sharpV = p.fmt.sharp
+	// 			p.fmt.sharp = false
+	// 			// Struct-field syntax
+	// 			p.fmt.plusV = p.fmt.plus
+	// 			p.fmt.plus = false
+	// 		}
+	// 		p.printArg(a[argNum], rune(c))
+	// 		argNum++
+	// 		i++
+	// 		continue formatLoop
+	// 	}
+	// 	// Format is more complex than simple flags and a verb or is malformed.
+	// 	break simpleFormat
+	// }
+	return -1, FormatFlags{}
 }

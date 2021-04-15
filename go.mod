@@ -16,6 +16,7 @@ require (
 	github.com/rs/xid v1.2.1
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/spf13/viper v1.6.2
+	github.com/stretchr/testify v1.3.0
 	github.com/xwb1989/sqlparser v0.0.0-20180606152119-120387863bf2
 	go.mongodb.org/mongo-driver v1.3.0
 	go.uber.org/atomic v1.4.0

@@ -5,22 +5,21 @@
 package fmt
 
 import (
-	"context"
 	"fmt"
 	"reflect"
 	"sync"
 )
 
-//PrintFunc  print function to print argument with type cast instead of reflect
-type PrintFunc func(source string, verb FormatVerb, flags FormatFlags, arg interface{}) string
+//PrintfFunc  print function to print argument with type cast instead of reflect
+type PrintfFunc func(source string, verb FormatVerb, flags FormatFlags, arg interface{}) string
 
 var (
 	printMutex sync.RWMutex
-	printFuncs = make(map[string]PrintFunc)
+	printFuncs = make(map[string]PrintfFunc)
 )
 
-//RegisterPrintFunc Register custom print function for verb and type
-func RegisterPrintFunc(ctx context.Context, v FormatVerb, t reflect.Type, f PrintFunc) {
+//RegisterPrintfFunc Register custom print format function for verb and type
+func RegisterPrintfFunc(v FormatVerb, t reflect.Type, f PrintfFunc) {
 	printMutex.Lock()
 	defer printMutex.Unlock()
 
@@ -33,11 +32,11 @@ func RegisterPrintFunc(ctx context.Context, v FormatVerb, t reflect.Type, f Prin
 	}
 }
 
-func defaultPrintFunc(format string, verb FormatVerb, flags FormatFlags, arg interface{}) string {
+func defaultPrintfFunc(format string, verb FormatVerb, flags FormatFlags, arg interface{}) string {
 	return fmt.Sprintf(format, arg)
 }
 
-func getPrintFunc(v FormatVerb, t reflect.Type) PrintFunc {
+func getPrintfFunc(v FormatVerb, t reflect.Type) PrintfFunc {
 	printMutex.RLock()
 	defer printMutex.RUnlock()
 	key := fmt.Sprintf("%s-%v", v, t)
@@ -45,5 +44,5 @@ func getPrintFunc(v FormatVerb, t reflect.Type) PrintFunc {
 	if ok {
 		return f
 	}
-	return defaultPrintFunc
+	return defaultPrintfFunc
 }

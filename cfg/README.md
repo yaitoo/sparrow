@@ -50,7 +50,7 @@ import "github.com/BurntSushi/toml"
 c := cfg.Open(context.TODO(), "./app.ini")
 
 var conf Config
-if _, err := toml.Decode(c.Content), &conf); err != nil {
+if _, err := toml.Decode(c.Content, &conf); err != nil {
   // handle error
 }
 

@@ -18,8 +18,14 @@ jobs:
       with:
         go-version: 1.15
 
-    - name: Run coverage
+    - name: cfg:testing
       run: cd $GITHUB_WORKSPACE/cfg && go test -race -coverprofile=coverage.txt -covermode=atomic
     
-    - name: Upload coverage to Codecov
+    - name: cfg:Codecov
       run: cd $GITHUB_WORKSPACE/cfg && bash <(curl -s https://codecov.io/bash)
+
+    - name: fmt:testing
+      run: cd $GITHUB_WORKSPACE/fmt && go test -race -coverprofile=coverage.txt -covermode=atomic
+    
+    - name: fmt:Codecov
+      run: cd $GITHUB_WORKSPACE/fmt && bash <(curl -s https://codecov.io/bash)

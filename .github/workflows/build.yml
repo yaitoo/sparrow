@@ -20,5 +20,7 @@ jobs:
 
     - name: cfg:Build
       run: cd $GITHUB_WORKSPACE/cfg && go build -v ./...
+    - name: fmt:Build
+      run: cd $GITHUB_WORKSPACE/cfg && go build -v ./...
 
 
